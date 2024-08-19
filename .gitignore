@@ -20,3 +20,13 @@ win32/common
 **/*~
 **/lint.log
 **/lint.trs
+**/runner
+**/runner.log
+**/runner.trs
+**/test-suite.log
+/x64
+/CMakeFiles
+/.vs
+/out
+/Testing/Temporary
+/unit_runner.dir
