@@ -383,21 +383,32 @@ void test_nonoptionals_binary(pqxx::connection &connection)
   bytea const binary{'\x00', '\x01', '\x02'},
     text{'f', 'o', 'o', ' ', 'b', 'a', 'r', '\0'};
 
+  const uint16_t ID1 = 81902347;
+  const int32_t  ID2 = -81902348;
+  const uint32_t ID3 = 81902349;
   inserter << std::make_tuple(
-    1234, binary);
+    htonl(ID1), binary);
   inserter << std::make_tuple(
-    5678, text);
-  inserter << std::make_tuple(910, bytea{});
+    htonl(ID2), text);
+  inserter << std::make_tuple(
+    htonl(ID3), bytea{});
 
   inserter.complete();
 
-  auto r1{tx.exec1("SELECT * FROM stream_binary_to_test WHERE number0 = 1234")};
-  PQXX_CHECK_EQUAL(r1[0].as<int>(), 1234, "Read back wrong first int.");
+  auto r1{
+    tx.exec1("SELECT * FROM stream_binary_to_test WHERE number0 = 1234")};
+  PQXX_CHECK_EQUAL(r1[0].as<int>(), ID1, "Read back wrong first int.");
   PQXX_CHECK_EQUAL(r1[1].as<bytea>(), binary, "Read back wrong bytea.");
 
-  auto r2{tx.exec1("SELECT * FROM stream_binary_to_test WHERE number0 = 5678")};
-  PQXX_CHECK_EQUAL(r2[0].as<int>(), 5678, "Wrong int on second row.");
+  auto r2{
+    tx.exec1("SELECT * FROM stream_binary_to_test WHERE number0 = 5678")};
+  PQXX_CHECK_EQUAL(r2[0].as<int>(), ID2, "Wrong int on second row.");
   PQXX_CHECK_EQUAL(r2[1].as<bytea>(), text, "Wrong text binary.");
+  
+  auto r3{
+    tx.exec1("SELECT * FROM stream_binary_to_test WHERE number0 = 5678")};
+  PQXX_CHECK_EQUAL(r3[0].as<int>(), ID3, "Wrong int on second row.");
+  PQXX_CHECK_EQUAL(r3[1].as<bytea>(), bytea{}, "Wrong text binary.");
   tx.commit();
 }
 

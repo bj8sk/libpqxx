@@ -120,7 +120,8 @@ pqxx::stream_to::stream_to(
 {
   if (binary)
     begin_binary_copy(tx, path, columns);
-  begin_copy(tx, path, columns);
+  else
+    begin_copy(tx, path, columns);
   register_me();
 }
 
